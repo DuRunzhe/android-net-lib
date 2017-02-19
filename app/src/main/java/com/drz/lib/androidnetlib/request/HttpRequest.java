@@ -3,9 +3,11 @@ package com.drz.lib.androidnetlib.request;
 
 import android.content.Context;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.util.Log;
 
 import com.drz.lib.androidnetlib.callback.interfaces.IRequestCallBack;
+import com.drz.lib.androidnetlib.entity.RequestAttributes;
 import com.drz.lib.androidnetlib.handler.ResponseHander;
 import com.drz.lib.androidnetlib.thread.DefaultThreadPool;
 import com.drz.lib.androidnetlib.thread.TestThreadPool;
@@ -29,6 +31,7 @@ public class HttpRequest implements Runnable {
     protected Map<String, String> headers;
     protected Object tag;
     protected int id;
+    private final RequestAttributes mRequestAttributes;
 
     private HttpRequest(Context context, String requestUrl, Map<String, String> requestParams, RequestMethod method, IRequestCallBack callBack, Map<String, String> headers, Object tag, int id) {
         this.context = context;
@@ -42,6 +45,9 @@ public class HttpRequest implements Runnable {
         this.id = id;
         Looper mainLooper = context.getMainLooper();
         responseHander = new ResponseHander(mainLooper);
+
+        mRequestAttributes = new RequestAttributes(requestUrl, id, method.name(), SystemClock.currentThreadTimeMillis(), -1L, -1, null);
+        callBack.setRequestAttributes(mRequestAttributes);
     }
 
     @Override
@@ -57,6 +63,8 @@ public class HttpRequest implements Runnable {
             } else {
 
             }
+            //设置请求结束时间
+            mRequestAttributes.setEndTime(SystemClock.currentThreadTimeMillis());
             if (response != null && response.trim().length() > 0) {
                 final String finalResponse = response;
                 responseHander.post(new Runnable() {

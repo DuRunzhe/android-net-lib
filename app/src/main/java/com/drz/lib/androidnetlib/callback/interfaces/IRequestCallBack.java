@@ -1,6 +1,8 @@
 package com.drz.lib.androidnetlib.callback.interfaces;
 
 
+import com.drz.lib.androidnetlib.entity.RequestAttributes;
+
 /**
  *
  */
@@ -25,4 +27,11 @@ public interface IRequestCallBack {
      * @param response
      */
     void onResponse(String response);
+
+    /**
+     * 设置请求属性
+     *
+     * @param requestAttributes
+     */
+    void setRequestAttributes(RequestAttributes requestAttributes);
 }

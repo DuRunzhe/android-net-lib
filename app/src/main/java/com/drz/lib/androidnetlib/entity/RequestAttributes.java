@@ -17,6 +17,16 @@ public class RequestAttributes {
     public RequestAttributes() {
     }
 
+    public RequestAttributes(String url, Integer id, String type, Long startTime, Long endTime, int stateCode, Object tag) {
+        this.url = url;
+        this.id = id;
+        this.type = type;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.stateCode = stateCode;
+        this.tag = tag;
+    }
+
     public Object getTag() {
         return tag;
     }
