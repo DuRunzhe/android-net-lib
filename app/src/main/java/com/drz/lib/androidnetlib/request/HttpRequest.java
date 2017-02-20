@@ -4,13 +4,12 @@ package com.drz.lib.androidnetlib.request;
 import android.content.Context;
 import android.os.Looper;
 import android.os.SystemClock;
-import android.util.Log;
 
 import com.drz.lib.androidnetlib.callback.interfaces.IRequestCallBack;
 import com.drz.lib.androidnetlib.entity.RequestAttributes;
 import com.drz.lib.androidnetlib.handler.ResponseHander;
+import com.drz.lib.androidnetlib.log.Logger;
 import com.drz.lib.androidnetlib.thread.DefaultThreadPool;
-import com.drz.lib.androidnetlib.thread.TestThreadPool;
 import com.drz.lib.androidnetlib.urlconnection.UrlConnectionHelper;
 
 import java.io.IOException;
@@ -52,7 +51,7 @@ public class HttpRequest implements Runnable {
 
     @Override
     public void run() {
-        Log.e("debug", "Thread name:" + Thread.currentThread().getName() + " id:" + Thread.currentThread().getId());
+        Logger.debug("--------执行Http请求 Thread name:" + Thread.currentThread().getName() + " id:" + Thread.currentThread().getId());
         //执行Http请求
         String response = null;
         try {
@@ -70,7 +69,7 @@ public class HttpRequest implements Runnable {
                 responseHander.post(new Runnable() {
                     @Override
                     public void run() {
-                        Log.d("debug", "---------------Thread name:" + Thread.currentThread().getName() + " id:" + Thread.currentThread().getId());
+                        Logger.debug("---------------执行响应回调 Thread name:" + Thread.currentThread().getName() + " id:" + Thread.currentThread().getId());
                         callBack.onResponse(finalResponse);
                     }
                 });
@@ -80,7 +79,7 @@ public class HttpRequest implements Runnable {
             responseHander.post(new Runnable() {
                 @Override
                 public void run() {
-                    Log.d("debug", "-----------------Thread name:" + Thread.currentThread().getName() + " id:" + Thread.currentThread().getId() + " e:" + e.getMessage());
+                    Logger.error("-----------------执行响应回调 Thread name:" + Thread.currentThread().getName() + " id:" + Thread.currentThread().getId() + " e:" + e.getMessage());
                     callBack.onException(e);
                 }
             });
@@ -88,7 +87,7 @@ public class HttpRequest implements Runnable {
             responseHander.post(new Runnable() {
                 @Override
                 public void run() {
-                    Log.d("debug", "------------------Thread name:" + Thread.currentThread().getName() + " id:" + Thread.currentThread().getId());
+                    Logger.error("------------------执行响应回调 Thread name:" + Thread.currentThread().getName() + " id:" + Thread.currentThread().getId());
                     callBack.onException(e);
                 }
             });

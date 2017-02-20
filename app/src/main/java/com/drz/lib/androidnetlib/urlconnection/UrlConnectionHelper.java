@@ -40,6 +40,8 @@ public class UrlConnectionHelper {
         urlConnection = (HttpURLConnection) url.openConnection();
         urlConnection.setDoInput(true);
         urlConnection.setDoOutput(false);//GET方式时需要保持false
+        urlConnection.setConnectTimeout(30 * 1000);
+        urlConnection.setReadTimeout(60 * 1000);
 //        urlConnection.setUseCaches(false);
 //        urlConnection.setInstanceFollowRedirects(true);
         urlConnection.setRequestMethod("GET");
