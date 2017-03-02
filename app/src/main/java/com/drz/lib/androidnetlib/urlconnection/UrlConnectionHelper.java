@@ -1,5 +1,7 @@
 package com.drz.lib.androidnetlib.urlconnection;
 
+import com.drz.lib.androidnetlib.entity.NetConfig;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -9,6 +11,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.Iterator;
 import java.util.Map;
@@ -22,28 +25,31 @@ public class UrlConnectionHelper {
         super();
     }
 
-    static URL url;
-    static HttpURLConnection urlConnection;
-
+    public static void config(HttpURLConnection urlConnection, NetConfig netConfig){
+        urlConnection.setConnectTimeout(netConfig.getConnectionOutTime());
+        urlConnection.setReadTimeout(netConfig.getReadOutTime());
+    }
     /**
      * @param requestUrl
-     * @param params
-     * @param headers
-     * @return
+     * @param netConf
+     *@param params
+     * @param headers   @return
      * @throws MalformedURLException
      * @throws IOException
      */
-    public static String doGet(String requestUrl, Map<String, String> params, Map<String, String> headers) throws IOException, Exception {
+    public static String doGet(String requestUrl, NetConfig netConf, Map<String, String> params, Map<String, String> headers) throws IOException, Exception {
         String s = urlEncode(params);
         requestUrl += "?" + s;
-        url = new URL(requestUrl);
-        urlConnection = (HttpURLConnection) url.openConnection();
+        URL url = new URL(requestUrl);
+        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         urlConnection.setDoInput(true);
         urlConnection.setDoOutput(false);//GET方式时需要保持false
 //        urlConnection.setUseCaches(false);
 //        urlConnection.setInstanceFollowRedirects(true);
         urlConnection.setRequestMethod("GET");
-        initHeader(headers);
+        urlConnection.setConnectTimeout(netConf.getConnectionOutTime());
+        urlConnection.setReadTimeout(netConf.getReadOutTime());
+        initHeader(headers, urlConnection);
 
 
         urlConnection.connect();
@@ -81,8 +87,9 @@ public class UrlConnectionHelper {
      * 初始化请求头
      *
      * @param headers
+     * @param urlConnection
      */
-    private static void initHeader(Map<String, String> headers) {
+    private static void initHeader(Map<String, String> headers, URLConnection urlConnection) {
         urlConnection.setRequestProperty(
                 "user-agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36");
 //        urlConnection.setRequestProperty("Upgrade-Insecure-Requests", "1");
@@ -101,20 +108,22 @@ public class UrlConnectionHelper {
 
     /**
      * @param requestUrl
-     * @param params
-     * @param headers
-     * @return
+     * @param netConf
+     *@param params
+     * @param headers   @return
      * @throws IOException
      */
-    public static String doPost(String requestUrl, Map<String, String> params, Map<String, String> headers) throws IOException, Exception {
-        url = new URL(requestUrl);
-        urlConnection = (HttpURLConnection) url.openConnection();
+    public static String doPost(String requestUrl, NetConfig netConf, Map<String, String> params, Map<String, String> headers) throws IOException, Exception {
+        URL url = new URL(requestUrl);
+        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         urlConnection.setDoInput(true);
         urlConnection.setDoOutput(true);
         urlConnection.setRequestMethod("POST");
         urlConnection.setUseCaches(false);
         urlConnection.setInstanceFollowRedirects(false);
-        initHeader(headers);
+        urlConnection.setConnectTimeout(netConf.getConnectionOutTime());
+        urlConnection.setReadTimeout(netConf.getReadOutTime());
+        initHeader(headers, urlConnection);
         urlConnection.connect();
 
         DataOutputStream out = null;

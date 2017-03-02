@@ -14,10 +14,10 @@ public class DefaultThreadPool {
     }
 
     // 阻塞队列最大任务数量
-    static final int BLOCKING_QUEUE_SIZE = 20;
+    static final int BLOCKING_QUEUE_SIZE = 16;
 
-    static final int corePoolSize = 8;//线程池保存的线程数量。
-    static final int maximumPoolSize = 16;//线程的最大数量。
+    static final int corePoolSize = 2;//线程池保存的线程数量。
+    static final int maximumPoolSize = 4;//线程的最大数量。
     static final long keepAlive = 15L;//当线程数量超过线程池保存的线程数量之后，空闲线程关闭前等待新任务的时间
     static final TimeUnit unit = TimeUnit.SECONDS;//超出 corePoolSize 大小后，线程空闲的时间到达给定时间后将会关闭的时间单位
     static final ArrayBlockingQueue<Runnable> requestQueue = new ArrayBlockingQueue<Runnable>(BLOCKING_QUEUE_SIZE);

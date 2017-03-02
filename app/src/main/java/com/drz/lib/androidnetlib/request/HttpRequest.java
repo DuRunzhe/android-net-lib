@@ -7,6 +7,7 @@ import android.os.SystemClock;
 import android.util.Log;
 
 import com.drz.lib.androidnetlib.callback.interfaces.IRequestCallBack;
+import com.drz.lib.androidnetlib.entity.NetConfig;
 import com.drz.lib.androidnetlib.entity.RequestAttributes;
 import com.drz.lib.androidnetlib.handler.ResponseHander;
 import com.drz.lib.androidnetlib.thread.DefaultThreadPool;
@@ -32,6 +33,7 @@ public class HttpRequest implements Runnable {
     protected Object tag;
     protected int id;
     private final RequestAttributes mRequestAttributes;
+    private NetConfig netConf;
 
     private HttpRequest(Context context, String requestUrl, Map<String, String> requestParams, RequestMethod method, IRequestCallBack callBack, Map<String, String> headers, Object tag, int id) {
         this.context = context;
@@ -57,9 +59,9 @@ public class HttpRequest implements Runnable {
         String response = null;
         try {
             if (method == RequestMethod.GET) {
-                response = UrlConnectionHelper.doGet(requestUrl, requestParams, headers);
+                response = UrlConnectionHelper.doGet(requestUrl, netConf, requestParams, headers);
             } else if (method == RequestMethod.POST) {
-                response = UrlConnectionHelper.doPost(requestUrl, requestParams, headers);
+                response = UrlConnectionHelper.doPost(requestUrl, netConf, requestParams, headers);
             } else {
 
             }
@@ -105,11 +107,13 @@ public class HttpRequest implements Runnable {
         private IRequestCallBack requestCallBack;
         protected Map<String, String> headers;
         private Context context;
+        private NetConfig netConf;
 
         public Builder(Context context) {
             this.context = context;
             requestParams = new HashMap<>();
             headers = new HashMap<>();
+            netConf = new NetConfig();
         }
 
         public Builder url(String url) {
@@ -148,6 +152,27 @@ public class HttpRequest implements Runnable {
         }
 
         /**
+         * @param time 毫秒
+         * @return
+         */
+        public Builder confConnectionOutTime(int time) {
+            this.netConf.setConnectionOutTime(time);
+            return this;
+        }
+
+        /**
+         * 毫秒
+         *
+         * @param time
+         * @return
+         */
+        public Builder confReadOutTime(int time) {
+            this.netConf.setReadOutTime(time);
+            return this;
+        }
+
+
+        /**
          * 执行请求
          *
          * @param requestCallBack
@@ -156,8 +181,16 @@ public class HttpRequest implements Runnable {
         public void execute(IRequestCallBack requestCallBack) {
             this.requestCallBack = requestCallBack;
             HttpRequest httpRequest = new HttpRequest(context, url, requestParams, method, requestCallBack, headers, tag, id);
+            httpRequest.config(netConf);
             DefaultThreadPool.getInstance().execute(httpRequest);
 //            TestThreadPool.getInstance().execute(httpRequest);
         }
+    }
+
+    private void config(NetConfig netConf) {
+        if (netConf == null) {
+            netConf = new NetConfig();
+        }
+        this.netConf = netConf;
     }
 }
