@@ -1,5 +1,7 @@
 package com.drz.lib.androidnetlib.thread;
 
+import android.util.Log;
+
 import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -14,7 +16,7 @@ public class DefaultThreadPool {
     }
 
     // 阻塞队列最大任务数量
-    static final int BLOCKING_QUEUE_SIZE = 16;
+    static final int BLOCKING_QUEUE_SIZE = 4;
 
     static final int corePoolSize = 2;//线程池保存的线程数量。
     static final int maximumPoolSize = 4;//线程的最大数量。
@@ -64,6 +66,7 @@ public class DefaultThreadPool {
                 threadPool.execute(runnable);
             } catch (Exception e) {
                 e.printStackTrace();
+                Log.e("debug", "- - - - - - - -执行线程异常：" + e.getMessage());
             }
         }
     }

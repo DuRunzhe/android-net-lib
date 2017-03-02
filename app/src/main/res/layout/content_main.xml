@@ -14,11 +14,11 @@
     tools:showIn="@layout/activity_main">
 
     <!--<com.drz.lib.androidnetlib.widget.LogView-->
-        <!--android:id="@+id/lgv"-->
-        <!--android:background="#000"-->
-        <!--android:textColor="#ffff00"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="320dp" />-->
+    <!--android:id="@+id/lgv"-->
+    <!--android:background="#000"-->
+    <!--android:textColor="#ffff00"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="320dp" />-->
 
     <Button
         android:id="@+id/bt_test"
@@ -26,12 +26,20 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:text="连接" />
+
     <com.drz.lib.androidnetlib.widget.LittleLogView
         android:id="@+id/ltv"
         android:layout_width="match_parent"
-        android:layout_height="420dp"
+        android:layout_height="20dp"
         android:layout_marginBottom="1dp"
         android:layout_marginTop="10dp"
+        android:background="#000"
+        android:textColor="#ffff00" />
+
+    <com.drz.lib.androidnetlib.widget.ScrollLogView
+        android:id="@+id/slv"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
         android:background="#000"
         android:textColor="#ffff00" />
 
