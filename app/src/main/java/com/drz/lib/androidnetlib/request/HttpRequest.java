@@ -23,6 +23,7 @@ import java.util.Map;
  * Created by Administrator on 2017/2/16 0016.
  */
 public class HttpRequest implements Runnable {
+    protected static NetConfig globalConfig = new NetConfig();
     private final ResponseHander responseHander;
     private Context context;
     private String requestUrl;
@@ -34,6 +35,18 @@ public class HttpRequest implements Runnable {
     protected int id;
     private final RequestAttributes mRequestAttributes;
     private NetConfig netConf;
+
+    /**
+     * 初始化全局配置
+     *
+     * @param netConfig
+     */
+    public static void initializeGlobalConf(NetConfig netConfig) {
+        if (netConfig == null) {
+            throw new RuntimeException(HttpRequest.class.getName() + " - - -全局初始化配置null错误");
+        }
+        globalConfig = netConfig;
+    }
 
     private HttpRequest(Context context, String requestUrl, Map<String, String> requestParams, RequestMethod method, IRequestCallBack callBack, Map<String, String> headers, Object tag, int id) {
         this.context = context;
@@ -63,7 +76,7 @@ public class HttpRequest implements Runnable {
             } else if (method == RequestMethod.POST) {
                 response = UrlConnectionHelper.doPost(requestUrl, netConf, requestParams, headers);
             } else {
-
+                //TODO
             }
             //设置请求结束时间
             mRequestAttributes.setEndTime(SystemClock.currentThreadTimeMillis());
@@ -121,7 +134,7 @@ public class HttpRequest implements Runnable {
             this.context = context;
             requestParams = new HashMap<>();
             headers = new HashMap<>();
-            netConf = new NetConfig();
+            netConf = globalConfig;
         }
 
         public Builder url(String url) {
@@ -197,7 +210,7 @@ public class HttpRequest implements Runnable {
 
     private void config(NetConfig netConf) {
         if (netConf == null) {
-            netConf = new NetConfig();
+            netConf = globalConfig;
         }
         this.netConf = netConf;
     }
