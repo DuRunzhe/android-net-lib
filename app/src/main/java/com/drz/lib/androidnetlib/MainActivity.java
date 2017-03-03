@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.drz.lib.androidnetlib.callback.BaseRequestCallBack;
+import com.drz.lib.androidnetlib.entity.respose.HttpResponse;
 import com.drz.lib.androidnetlib.request.HttpRequest;
 import com.drz.lib.androidnetlib.widget.LittleLogView;
 import com.drz.lib.androidnetlib.widget.LogView;
@@ -74,7 +75,17 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 final int finalCount = count++;
                 clickView.setText("连接" + finalCount);
-                new HttpRequest.Builder(mContext)
+//                asyncRequest(finalCount);
+                syncRequest(finalCount);
+            }
+        });
+    }
+
+    private void syncRequest(final int finalCount) {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final HttpResponse response = new HttpRequest.Builder(mContext)
                         .get()
                         .url("http://192.168.111.106:9090/user/info")
                         .addParams("id", "1")
@@ -82,29 +93,48 @@ public class MainActivity extends AppCompatActivity {
 //                        .confReadOutTime(10 * 1000)
 //                        .addParams("login", "drz")
 //                        .addParams("password","9ABF05085DCB0322588C57A8E9AB4EED")
-                        .execute(new BaseRequestCallBack() {
-                            @Override
-                            public void onResponse(byte[] responseEntity) {
-
-                            }
-
-                            @Override
-                            public void onException(Throwable e) {
-                                Log.e("debug", e.getMessage());
-                                Toast.makeText(mContext, "test:" + e.getMessage(), Toast.LENGTH_SHORT).show();
-//                                mLtv.log("count:" + (finalCount) + " " + e.getMessage());
-                                mSlv.log("count:" + (finalCount) + " " + e.getMessage());
-                            }
-
-                            @Override
-                            public void onResponse(String response) {
-                                Log.e("debug", "test:" + response);
-                                mLtv.log("count:" + (finalCount) + " " + response);
-                                Toast.makeText(mContext, "test:" + response, Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                        .excute();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mSlv.log("count:" + (finalCount) + " body:" + response.string() + ", error:" + response.getError().toString());
+                    }
+                });
             }
         });
+        thread.start();
+    }
+
+    private void asyncRequest(final int finalCount) {
+        new HttpRequest.Builder(mContext)
+                .get()
+                .url("http://192.168.111.106:9090/user/info")
+                .addParams("id", "1")
+//                        .confConnectionOutTime(5 * 1000)
+//                        .confReadOutTime(10 * 1000)
+//                        .addParams("login", "drz")
+//                        .addParams("password","9ABF05085DCB0322588C57A8E9AB4EED")
+                .execute(new BaseRequestCallBack() {
+                    @Override
+                    public void onResponse(byte[] responseEntity) {
+
+                    }
+
+                    @Override
+                    public void onException(Throwable e) {
+                        Log.e("debug", e.getMessage());
+                        Toast.makeText(mContext, "test:" + e.getMessage(), Toast.LENGTH_SHORT).show();
+//                                mLtv.log("count:" + (finalCount) + " " + e.getMessage());
+                        mSlv.log("count:" + (finalCount) + " " + e.getMessage());
+                    }
+
+                    @Override
+                    public void onResponse(String response) {
+                        Log.e("debug", "test:" + response);
+                        mLtv.log("count:" + (finalCount) + " " + response);
+                        Toast.makeText(mContext, "test:" + response, Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
 }

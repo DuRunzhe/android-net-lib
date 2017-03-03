@@ -9,6 +9,7 @@ import android.util.Log;
 import com.drz.lib.androidnetlib.callback.interfaces.IRequestCallBack;
 import com.drz.lib.androidnetlib.entity.NetConfig;
 import com.drz.lib.androidnetlib.entity.RequestAttributes;
+import com.drz.lib.androidnetlib.entity.respose.HttpResponse;
 import com.drz.lib.androidnetlib.handler.ResponseHander;
 import com.drz.lib.androidnetlib.thread.DefaultThreadPool;
 import com.drz.lib.androidnetlib.thread.TestThreadPool;
@@ -62,7 +63,9 @@ public class HttpRequest implements Runnable {
         responseHander = new ResponseHander(mainLooper);
 
         mRequestAttributes = new RequestAttributes(requestUrl, id, method.name(), SystemClock.currentThreadTimeMillis(), -1L, -1, null);
-        callBack.setRequestAttributes(mRequestAttributes);
+        if (callBack != null) {
+            callBack.setRequestAttributes(mRequestAttributes);
+        }
     }
 
     @Override
@@ -116,6 +119,22 @@ public class HttpRequest implements Runnable {
                 }
             });
         }
+    }
+
+    private HttpResponse syncRun() {
+        HttpResponse response = null;
+        try {
+            if (method == RequestMethod.GET) {
+                response = UrlConnectionHelper.syncGet(requestUrl, netConf, requestParams, headers);
+            } else if (method == RequestMethod.POST) {
+                response = UrlConnectionHelper.syncPost(requestUrl, netConf, requestParams, headers);
+            }
+        } catch (Exception e) {
+            response = new HttpResponse();
+            response.setError(e);
+            response.setResponseCode(500);
+        }
+        return response;
     }
 
 
@@ -205,6 +224,18 @@ public class HttpRequest implements Runnable {
             httpRequest.config(netConf);
             DefaultThreadPool.getInstance().execute(httpRequest);
 //            TestThreadPool.getInstance().execute(httpRequest);
+        }
+
+        /**
+         * 同步执行方法
+         *
+         * @return
+         */
+        public HttpResponse excute() {
+            HttpRequest httpRequest = new HttpRequest(context, url, requestParams, method, requestCallBack, headers, tag, id);
+            httpRequest.config(netConf);
+            HttpResponse httpResponse = httpRequest.syncRun();
+            return httpResponse;
         }
     }
 
