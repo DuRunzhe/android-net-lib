@@ -83,7 +83,11 @@ public class HttpRequest implements Runnable {
                 @Override
                 public void run() {
                     Log.d("debug", "-----------------Thread name:" + Thread.currentThread().getName() + " id:" + Thread.currentThread().getId() + " e:" + e.getMessage());
-                    callBack.onException(e);
+                    if (e == null) {
+                        callBack.onException(new IOException("未知异常"));
+                    } else {
+                        callBack.onException(e);
+                    }
                 }
             });
         } catch (final Exception e) {
@@ -91,7 +95,11 @@ public class HttpRequest implements Runnable {
                 @Override
                 public void run() {
                     Log.d("debug", "------------------Thread name:" + Thread.currentThread().getName() + " id:" + Thread.currentThread().getId());
-                    callBack.onException(e);
+                    if (e == null) {
+                        callBack.onException(new Exception("未知异常"));
+                    } else {
+                        callBack.onException(e);
+                    }
                 }
             });
         }
