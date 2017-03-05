@@ -4,12 +4,15 @@ package com.drz.lib.androidnetlib.request;
 import android.content.Context;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.util.Log;
 
 import com.drz.lib.androidnetlib.callback.interfaces.IRequestCallBack;
+import com.drz.lib.androidnetlib.entity.NetConfig;
 import com.drz.lib.androidnetlib.entity.RequestAttributes;
+import com.drz.lib.androidnetlib.entity.respose.HttpResponse;
 import com.drz.lib.androidnetlib.handler.ResponseHander;
-import com.drz.lib.androidnetlib.log.Logger;
 import com.drz.lib.androidnetlib.thread.DefaultThreadPool;
+import com.drz.lib.androidnetlib.thread.TestThreadPool;
 import com.drz.lib.androidnetlib.urlconnection.UrlConnectionHelper;
 
 import java.io.IOException;
@@ -21,6 +24,7 @@ import java.util.Map;
  * Created by Administrator on 2017/2/16 0016.
  */
 public class HttpRequest implements Runnable {
+    protected static NetConfig globalConfig = new NetConfig();
     private final ResponseHander responseHander;
     private Context context;
     private String requestUrl;
@@ -31,6 +35,19 @@ public class HttpRequest implements Runnable {
     protected Object tag;
     protected int id;
     private final RequestAttributes mRequestAttributes;
+    private NetConfig netConf;
+
+    /**
+     * 初始化全局配置
+     *
+     * @param netConfig
+     */
+    public static void initializeGlobalConf(NetConfig netConfig) {
+        if (netConfig == null) {
+            throw new RuntimeException(HttpRequest.class.getName() + " - - -全局初始化配置null错误");
+        }
+        globalConfig = netConfig;
+    }
 
     private HttpRequest(Context context, String requestUrl, Map<String, String> requestParams, RequestMethod method, IRequestCallBack callBack, Map<String, String> headers, Object tag, int id) {
         this.context = context;
@@ -46,21 +63,23 @@ public class HttpRequest implements Runnable {
         responseHander = new ResponseHander(mainLooper);
 
         mRequestAttributes = new RequestAttributes(requestUrl, id, method.name(), SystemClock.currentThreadTimeMillis(), -1L, -1, null);
-        callBack.setRequestAttributes(mRequestAttributes);
+        if (callBack != null) {
+            callBack.setRequestAttributes(mRequestAttributes);
+        }
     }
 
     @Override
     public void run() {
-        Logger.debug("--------执行Http请求 Thread name:" + Thread.currentThread().getName() + " id:" + Thread.currentThread().getId());
+        Log.e("debug", "Thread name:" + Thread.currentThread().getName() + " id:" + Thread.currentThread().getId());
         //执行Http请求
         String response = null;
         try {
             if (method == RequestMethod.GET) {
-                response = UrlConnectionHelper.doGet(requestUrl, requestParams, headers);
+                response = UrlConnectionHelper.doGet(requestUrl, netConf, requestParams, headers);
             } else if (method == RequestMethod.POST) {
-                response = UrlConnectionHelper.doPost(requestUrl, requestParams, headers);
+                response = UrlConnectionHelper.doPost(requestUrl, netConf, requestParams, headers);
             } else {
-
+                //TODO
             }
             //设置请求结束时间
             mRequestAttributes.setEndTime(SystemClock.currentThreadTimeMillis());
@@ -69,7 +88,7 @@ public class HttpRequest implements Runnable {
                 responseHander.post(new Runnable() {
                     @Override
                     public void run() {
-                        Logger.debug("---------------执行响应回调 Thread name:" + Thread.currentThread().getName() + " id:" + Thread.currentThread().getId());
+                        Log.d("debug", "---------------Thread name:" + Thread.currentThread().getName() + " id:" + Thread.currentThread().getId());
                         callBack.onResponse(finalResponse);
                     }
                 });
@@ -79,19 +98,43 @@ public class HttpRequest implements Runnable {
             responseHander.post(new Runnable() {
                 @Override
                 public void run() {
-                    Logger.error("-----------------执行响应回调 Thread name:" + Thread.currentThread().getName() + " id:" + Thread.currentThread().getId() + " e:" + e.getMessage());
-                    callBack.onException(e);
+                    Log.d("debug", "-----------------Thread name:" + Thread.currentThread().getName() + " id:" + Thread.currentThread().getId() + " e:" + e.getMessage());
+                    if (e == null) {
+                        callBack.onException(new IOException("未知异常"));
+                    } else {
+                        callBack.onException(e);
+                    }
                 }
             });
         } catch (final Exception e) {
             responseHander.post(new Runnable() {
                 @Override
                 public void run() {
-                    Logger.error("------------------执行响应回调 Thread name:" + Thread.currentThread().getName() + " id:" + Thread.currentThread().getId());
-                    callBack.onException(e);
+                    Log.d("debug", "------------------Thread name:" + Thread.currentThread().getName() + " id:" + Thread.currentThread().getId());
+                    if (e == null) {
+                        callBack.onException(new Exception("未知异常"));
+                    } else {
+                        callBack.onException(e);
+                    }
                 }
             });
         }
+    }
+
+    private HttpResponse syncRun() {
+        HttpResponse response = null;
+        try {
+            if (method == RequestMethod.GET) {
+                response = UrlConnectionHelper.syncGet(requestUrl, netConf, requestParams, headers);
+            } else if (method == RequestMethod.POST) {
+                response = UrlConnectionHelper.syncPost(requestUrl, netConf, requestParams, headers);
+            }
+        } catch (Exception e) {
+            response = new HttpResponse();
+            response.setError(e);
+            response.setResponseCode(500);
+        }
+        return response;
     }
 
 
@@ -104,11 +147,13 @@ public class HttpRequest implements Runnable {
         private IRequestCallBack requestCallBack;
         protected Map<String, String> headers;
         private Context context;
+        private NetConfig netConf;
 
         public Builder(Context context) {
             this.context = context;
             requestParams = new HashMap<>();
             headers = new HashMap<>();
+            netConf = globalConfig;
         }
 
         public Builder url(String url) {
@@ -147,6 +192,27 @@ public class HttpRequest implements Runnable {
         }
 
         /**
+         * @param time 毫秒
+         * @return
+         */
+        public Builder confConnectionOutTime(int time) {
+            this.netConf.setConnectionOutTime(time);
+            return this;
+        }
+
+        /**
+         * 毫秒
+         *
+         * @param time
+         * @return
+         */
+        public Builder confReadOutTime(int time) {
+            this.netConf.setReadOutTime(time);
+            return this;
+        }
+
+
+        /**
          * 执行请求
          *
          * @param requestCallBack
@@ -155,8 +221,28 @@ public class HttpRequest implements Runnable {
         public void execute(IRequestCallBack requestCallBack) {
             this.requestCallBack = requestCallBack;
             HttpRequest httpRequest = new HttpRequest(context, url, requestParams, method, requestCallBack, headers, tag, id);
+            httpRequest.config(netConf);
             DefaultThreadPool.getInstance().execute(httpRequest);
 //            TestThreadPool.getInstance().execute(httpRequest);
         }
+
+        /**
+         * 同步执行方法
+         *
+         * @return
+         */
+        public HttpResponse excute() {
+            HttpRequest httpRequest = new HttpRequest(context, url, requestParams, method, requestCallBack, headers, tag, id);
+            httpRequest.config(netConf);
+            HttpResponse httpResponse = httpRequest.syncRun();
+            return httpResponse;
+        }
+    }
+
+    private void config(NetConfig netConf) {
+        if (netConf == null) {
+            netConf = globalConfig;
+        }
+        this.netConf = netConf;
     }
 }
