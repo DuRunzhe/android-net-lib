@@ -4,7 +4,8 @@ import com.drz.lib.androidnetlib.callback.interfaces.IRequestCallBack;
 import com.drz.lib.androidnetlib.entity.RequestAttributes;
 
 /**
- * Created by Administrator on 2017/2/16 0016.
+ * @author 杜润哲{a12345570@163.com}
+ * @date 2017/2/20 0020  22:40
  */
 
 public abstract class BaseRequestCallBack implements IRequestCallBack {
