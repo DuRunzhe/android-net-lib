@@ -85,8 +85,8 @@ public class MainActivity extends AppCompatActivity {
                 clickView.setText("连接" + finalCount);
 //                asyncRequest(finalCount);
 //                syncRequest(finalCount);
-                fileRequest(finalCount);
-//                bitmapRequest(finalCount);
+//                fileRequest(finalCount);
+                bitmapRequest(finalCount);
             }
         });
     }
