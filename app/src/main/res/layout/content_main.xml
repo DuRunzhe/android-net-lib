@@ -43,4 +43,10 @@
         android:background="#000"
         android:textColor="#ffff00" />
 
+    <ImageView
+        android:id="@+id/iv"
+        android:layout_width="300dp"
+        android:layout_height="200dp"
+        android:scaleType="fitCenter" />
+
 </LinearLayout>

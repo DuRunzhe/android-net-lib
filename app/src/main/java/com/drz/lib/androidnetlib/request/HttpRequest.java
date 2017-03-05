@@ -72,19 +72,19 @@ public class HttpRequest implements Runnable {
     public void run() {
         Log.e("debug", "Thread name:" + Thread.currentThread().getName() + " id:" + Thread.currentThread().getId());
         //执行Http请求
-        String response = null;
+        HttpResponse response = null;
         try {
             if (method == RequestMethod.GET) {
-                response = UrlConnectionHelper.doGet(requestUrl, netConf, requestParams, headers);
+                response = UrlConnectionHelper.syncGet(requestUrl, netConf, requestParams, headers);
             } else if (method == RequestMethod.POST) {
-                response = UrlConnectionHelper.doPost(requestUrl, netConf, requestParams, headers);
+                response = UrlConnectionHelper.syncPost(requestUrl, netConf, requestParams, headers);
             } else {
                 //TODO
             }
             //设置请求结束时间
             mRequestAttributes.setEndTime(SystemClock.currentThreadTimeMillis());
-            if (response != null && response.trim().length() > 0) {
-                final String finalResponse = response;
+            if (response != null && response.string().trim().length() > 0) {
+                final HttpResponse finalResponse = response;
                 responseHander.post(new Runnable() {
                     @Override
                     public void run() {
@@ -140,7 +140,7 @@ public class HttpRequest implements Runnable {
 
     public static class Builder {
         private String url;
-        private RequestMethod method;
+        private RequestMethod method = RequestMethod.GET;
         private Map<String, String> requestParams;
         private Object tag;
         private int id;

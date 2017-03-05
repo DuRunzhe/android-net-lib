@@ -15,10 +15,12 @@ import java.nio.Buffer;
  * Created by drz on 2017/3/3.
  */
 
-public class HttpResponse implements Serializable {
+public class HttpResponse<Q> implements Serializable {
     private byte[] body;
     private int responseCode;
     private Throwable error;
+    private Q bodys;
+    private long contentLength;
 
     public String string() {
         if (body == null) {
@@ -41,7 +43,7 @@ public class HttpResponse implements Serializable {
         BufferedWriter bw = new BufferedWriter(new StringWriter());
         char[] charBuffer = new char[1024];
         int len = 0;
-        while ((len = br.read(charBuffer, 0, len)) != -1) {
+        while ((len = br.read(charBuffer)) != -1) {
             bw.write(charBuffer, 0, len);
         }
         bw.flush();
@@ -75,5 +77,21 @@ public class HttpResponse implements Serializable {
 
     public void setBody(byte[] body) {
         this.body = body;
+    }
+
+    public Q getBodys() {
+        return bodys;
+    }
+
+    public void setBodys(Q bodys) {
+        this.bodys = bodys;
+    }
+
+    public long getContentLength() {
+        return contentLength;
+    }
+
+    public void setContentLength(long contentLength) {
+        this.contentLength = contentLength;
     }
 }

@@ -2,18 +2,12 @@ package com.drz.lib.androidnetlib.callback.interfaces;
 
 
 import com.drz.lib.androidnetlib.entity.RequestAttributes;
+import com.drz.lib.androidnetlib.entity.respose.HttpResponse;
 
 /**
  *
  */
-public interface IRequestCallBack {
-    /**
-     * 响应回调
-     *
-     * @param responseEntity
-     */
-    void onResponse(byte[] responseEntity);
-
+public interface IRequestCallBack<Q> {
     /**
      * 请求异常回调
      *
@@ -22,16 +16,11 @@ public interface IRequestCallBack {
     void onException(Throwable e);
 
     /**
-     * 响应回调
-     *
-     * @param response
-     */
-    void onResponse(String response);
-
-    /**
      * 设置请求属性
      *
      * @param requestAttributes
      */
     void setRequestAttributes(RequestAttributes requestAttributes);
+
+    void onResponse(HttpResponse<Q> httpResponse);
 }
