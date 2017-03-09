@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import okio.Buffer;
+
 /**
  * 封装一次请求的所有属性
  * Created by Administrator on 2017/2/16 0016.
@@ -72,18 +74,18 @@ public class HttpRequest implements Runnable {
     public void run() {
         Log.e("debug", "Thread name:" + Thread.currentThread().getName() + " id:" + Thread.currentThread().getId());
         //执行Http请求
-        HttpResponse response = null;
+        HttpResponse<Buffer> response = null;
         try {
             if (method == RequestMethod.GET) {
-                response = UrlConnectionHelper.syncGet(requestUrl, netConf, requestParams, headers);
+                response = UrlConnectionHelper.syncBufferGet(requestUrl, netConf, requestParams, headers);
             } else if (method == RequestMethod.POST) {
-                response = UrlConnectionHelper.syncPost(requestUrl, netConf, requestParams, headers);
+                response = UrlConnectionHelper.syncBufferPost(requestUrl, netConf, requestParams, headers);
             } else {
                 //TODO
             }
             //设置请求结束时间
             mRequestAttributes.setEndTime(SystemClock.currentThreadTimeMillis());
-            if (response != null && response.string().trim().length() > 0) {
+            if (response != null && response.getBodys() != null) {
                 final HttpResponse finalResponse = response;
                 responseHander.post(new Runnable() {
                     @Override

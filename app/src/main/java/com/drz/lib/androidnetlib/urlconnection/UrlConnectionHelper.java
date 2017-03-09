@@ -208,7 +208,7 @@ public class UrlConnectionHelper {
                 buf.readFrom(is);
                 httpResponse.setBodys(buf);
             } catch (IOException e) {
-                httpResponse.setError(e);
+                throw e;
             } finally {
                 urlConnection.disconnect();
             }
@@ -342,6 +342,57 @@ public class UrlConnectionHelper {
 //            }
             if (bis != null) {
                 bis.close();
+            }
+        }
+        return httpResponse;
+    }
+
+    public static HttpResponse<Buffer> syncBufferPost(String requestUrl, NetConfig netConf, Map<String, String> params,
+                                                      Map<String, String> headers) throws IOException, Exception {
+        URL url = new URL(requestUrl);
+        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        urlConnection.setDoInput(true);
+        urlConnection.setDoOutput(true);
+        urlConnection.setRequestMethod("POST");
+        urlConnection.setUseCaches(false);
+        urlConnection.setInstanceFollowRedirects(false);
+        if (netConf == null) {
+            netConf = new NetConfig();
+        }
+        urlConnection.setConnectTimeout(netConf.getConnectionOutTime());
+        urlConnection.setReadTimeout(netConf.getReadOutTime());
+        if (headers != null && !headers.isEmpty()) {
+            initHeader(headers, urlConnection);
+        }
+        urlConnection.connect();
+
+        DataOutputStream out = null;
+        InputStream is;
+        HttpResponse<Buffer> httpResponse = new HttpResponse<>();
+        try {
+            out = new DataOutputStream(urlConnection.getOutputStream());
+            String content = urlEncode(params);
+            out.writeBytes(content);
+            out.flush();
+
+            int code = urlConnection.getResponseCode();
+            httpResponse.setResponseCode(code);
+            if (code == 200) {
+                is = urlConnection.getInputStream();
+                httpResponse.setBodys(new Buffer().readFrom(is));
+                urlConnection.disconnect();
+            } else {
+                Exception e = new Exception("error! stateCode " + code);
+                httpResponse.setResponseCode(500);
+                httpResponse.setError(e);
+                throw e;
+            }
+        } catch (IOException e) {
+            httpResponse.setError(e);
+            throw e;
+        } finally {
+            if (out != null) {
+                out.close();
             }
         }
         return httpResponse;

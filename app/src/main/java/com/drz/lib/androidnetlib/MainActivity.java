@@ -100,8 +100,8 @@ public class MainActivity extends AppCompatActivity {
 //                asyncRequest(finalCount);
 //                syncRequest(finalCount);
 //                fileRequest(finalCount);
-//                bitmapRequest(finalCount);
-                okHttpRequest(finalCount);
+                bitmapRequest(finalCount);
+//                okHttpRequest(finalCount);
 //                urlConnectionGet(finalCount);
             }
         });
@@ -211,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
     private void bitmapRequest(int count) {
         new HttpRequest.Builder(mContext)
                 .get()
-                .url("http://p0.so.qhimgs1.com/t01e4b0a12ce71d37fc.jpg")
+                .url(getUrl())
 //                .url("http://p5.so.qhimgs1.com/t01e93105df8d93c2eb.jpg")
                 .execute(new BitmapRequestCallBack() {
                     @Override
@@ -282,6 +282,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
                 } catch (final Exception e) {
+                    e.printStackTrace();
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {

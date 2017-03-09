@@ -18,48 +18,16 @@ import okio.Buffer;
  * Created by Administrator on 2017/3/5 0005.
  */
 
-public abstract class BitmapRequestCallBack extends BaseRequestCallBack {
+public abstract class BitmapRequestCallBack extends BaseRequestCallBack<Buffer> {
 
     @Override
-    public void onResponse(HttpResponse httpResponse) {
-        Buffer buffer = new Buffer();
-        Buffer buf = null;
-        try {
-            buf = buffer.readFrom(new ByteArrayInputStream(httpResponse.getBody()));
-        } catch (IOException e) {
-            onException(e);
+    public void onResponse(HttpResponse<Buffer> httpResponse) {
+        Bitmap bitmap = BitmapFactory.decodeStream(httpResponse.inputStream());
+        if (bitmap == null) {
+            onException(new Exception("Bitmap is null"));
             return;
         }
-        InputStream is = buf.inputStream();
-        Bitmap bitmap = BitmapFactory.decodeStream(is);
-//        byte[] body = httpResponse.getBody();
-//        Bitmap bitmap = BitmapFactory.decodeByteArray(body, 0, body.length);
         onBitMapResponse(bitmap);
-
-//        ByteArrayInputStream bais = null;
-//        ByteArrayOutputStream baos = null;
-//        try {
-//            bais = new ByteArrayInputStream(body);
-//            baos = new ByteArrayOutputStream();
-//            byte[] buf = new byte[1024];
-//            int len;
-//            while ((len = bais.read(buf)) != -1) {
-//                baos.write(buf, 0, len);
-//            }
-//            baos.flush();
-//            Bitmap bitmap = BitmapFactory.decodeStream(bais);
-//            bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-//            onBitMapResponse(bitmap);
-//        } catch (IOException e) {
-//            onException(e);
-//        } finally {
-//            try {
-//                baos.close();
-//                bais.close();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
     }
 
     protected abstract void onBitMapResponse(Bitmap bitmap);

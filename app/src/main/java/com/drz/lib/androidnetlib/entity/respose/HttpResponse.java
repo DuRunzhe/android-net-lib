@@ -6,6 +6,7 @@ import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.io.StringWriter;
@@ -23,15 +24,10 @@ public class HttpResponse<Q> implements Serializable {
     private long contentLength;
 
     public String string() {
-        if (body == null) {
-            return null;
+        if (bodys != null && bodys instanceof okio.Buffer) {
+            return ((okio.Buffer) bodys).toString();
         }
-        try {
-            return create(body);
-        } catch (IOException e) {
-            return null;
-        }
-//        return new String(body, "UTF-8");
+        return null;
     }
 
     private static String create(byte[] content) throws IOException {
@@ -42,7 +38,7 @@ public class HttpResponse<Q> implements Serializable {
         //写入到字符输出流
         BufferedWriter bw = new BufferedWriter(new StringWriter());
         char[] charBuffer = new char[1024];
-        int len = 0;
+        int len;
         while ((len = br.read(charBuffer)) != -1) {
             bw.write(charBuffer, 0, len);
         }
@@ -72,6 +68,11 @@ public class HttpResponse<Q> implements Serializable {
     }
 
     public byte[] getBody() {
+        if (body == null) {
+            if (bodys != null && bodys instanceof okio.Buffer) {
+                return ((okio.Buffer) bodys).readByteArray();
+            }
+        }
         return body;
     }
 
@@ -93,5 +94,19 @@ public class HttpResponse<Q> implements Serializable {
 
     public void setContentLength(long contentLength) {
         this.contentLength = contentLength;
+    }
+
+    public byte[] bytes() {
+        if (bodys != null && bodys instanceof okio.Buffer) {
+            return ((okio.Buffer) bodys).readByteArray();
+        }
+        return null;
+    }
+
+    public InputStream inputStream() {
+        if (bodys != null && bodys instanceof okio.Buffer) {
+            return ((okio.Buffer) bodys).inputStream();
+        }
+        return null;
     }
 }
