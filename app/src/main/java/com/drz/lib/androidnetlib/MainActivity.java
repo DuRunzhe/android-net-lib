@@ -190,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
     private void fileRequest(int count) {
         new HttpRequest.Builder(mContext)
                 .get()
-                .url("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1488720355999&di=d38f51f44adb6a433dd66eb3a65495d0&imgtype=0&src=http%3A%2F%2Fs6.sinaimg.cn%2Fmw690%2F003zfOAVzy70GTXl2MR85%26690")
+                .url(getUrl())
                 .execute(new FileRequestCallBack(Environment.getExternalStorageDirectory().getPath(), "test2.jpeg") {
                     @Override
                     protected void onFileResponse(HttpResponse<File> httpResponse) {
