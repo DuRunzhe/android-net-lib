@@ -97,10 +97,10 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 final int finalCount = count++;
                 clickView.setText("连接" + finalCount);
-//                asyncRequest(finalCount);
+                asyncRequest(finalCount);
 //                syncRequest(finalCount);
 //                fileRequest(finalCount);
-                bitmapRequest(finalCount);
+//                bitmapRequest(finalCount);
 //                okHttpRequest(finalCount);
 //                urlConnectionGet(finalCount);
             }
@@ -160,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
     private void asyncRequest(final int finalCount) {
         new HttpRequest.Builder(mContext)
                 .get()
-                .url("http://192.168.111.106:9090/user/info")
+                .url("http://192.168.44.235:6060/queryLayersByMapid?map_id=5035")
                 .addParams("id", "1")
 //                        .confConnectionOutTime(5 * 1000)
 //                        .confReadOutTime(10 * 1000)
@@ -172,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
                             public void onStringResponse(HttpResponse<String> response) {
                                 Log.e("debug", "test:" + response.getBodys());
                                 String string = response.string();
-                                mLtv.log("count:" + (finalCount) + " " + string);
+                                mSlv.log("count:" + (finalCount) + " " + string);
                                 Toast.makeText(mContext, "test:" + string, Toast.LENGTH_SHORT).show();
                             }
 
@@ -208,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-    private void bitmapRequest(int count) {
+    private void bitmapRequest(final int count) {
         new HttpRequest.Builder(mContext)
                 .get()
                 .url(getUrl())
@@ -216,15 +216,15 @@ public class MainActivity extends AppCompatActivity {
                 .execute(new BitmapRequestCallBack() {
                     @Override
                     protected void onBitMapResponse(Bitmap bitmap) {
-                        Log.d("debug", "Bitmap:" + bitmap);
+                        Log.d("debug", "count:" + count + " Bitmap:" + bitmap);
                         mIv.setImageBitmap(bitmap);
-                        mSlv.log("Bitmap:" + bitmap);
+                        mSlv.log("count:" + count + "Bitmap:" + bitmap);
                     }
 
                     @Override
                     public void onException(Throwable e) {
-                        Log.e("error", "Bitmap download failed! error:" + e.getMessage());
-                        mSlv.log("Bitmap download failed! error:" + e.getMessage());
+                        Log.e("error", "count:" + count + "Bitmap download failed! error:" + e.getMessage());
+                        mSlv.log("count:" + count + "Bitmap download failed! error:" + e.getMessage());
                     }
                 });
     }
