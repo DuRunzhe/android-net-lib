@@ -97,9 +97,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 final int finalCount = count++;
                 clickView.setText("连接" + finalCount);
-                asyncRequest(finalCount);
+//                asyncRequest(finalCount);
 //                syncRequest(finalCount);
-//                fileRequest(finalCount);
+                fileRequest(finalCount);
 //                bitmapRequest(finalCount);
 //                okHttpRequest(finalCount);
 //                urlConnectionGet(finalCount);
@@ -160,10 +160,10 @@ public class MainActivity extends AppCompatActivity {
     private void asyncRequest(final int finalCount) {
         new HttpRequest.Builder(mContext)
                 .get()
-                .url("http://192.168.44.235:6060/queryLayersByMapid?map_id=5035")
+                .url("http://cute.dituhui.com/queryLayersByMapid?map_id=5035")
                 .addParams("id", "1")
-//                        .confConnectionOutTime(5 * 1000)
-//                        .confReadOutTime(10 * 1000)
+                .confConnectionOutTime(5 * 1000)
+                .confReadOutTime(10 * 1000)
 //                        .addParams("login", "drz")
 //                        .addParams("password","9ABF05085DCB0322588C57A8E9AB4EED")
                 .execute(

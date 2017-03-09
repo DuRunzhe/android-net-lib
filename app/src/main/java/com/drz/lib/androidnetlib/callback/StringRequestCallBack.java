@@ -10,18 +10,12 @@ import okio.Buffer;
  * Created by Administrator on 2017/3/5 0005.
  */
 
-public abstract class StringRequestCallBack extends BaseRequestCallBack<Buffer> {
+public abstract class StringRequestCallBack extends BaseRequestCallBack<String> {
 
     @Override
-    public void onResponse(HttpResponse<Buffer> httpResponse) {
+    public void onResponse(HttpResponse<String> httpResponse) {
         try {
-            String bodys = httpResponse.string();
-            HttpResponse<String> response = new HttpResponse<>();
-            response.setBody(httpResponse.getBody());
-            response.setBodys(bodys);
-            response.setContentLength(httpResponse.getContentLength());
-            response.setError(httpResponse.getError());
-            onStringResponse(response);
+            onStringResponse(httpResponse);
         } catch (Exception e) {
             onException(e);
         }

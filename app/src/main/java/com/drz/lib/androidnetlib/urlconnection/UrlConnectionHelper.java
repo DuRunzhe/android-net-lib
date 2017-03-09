@@ -174,7 +174,7 @@ public class UrlConnectionHelper {
         return httpResponse;
     }
 
-    public static HttpResponse<Buffer> syncBufferGet(String requestUrl, NetConfig netConf, Map<String, String> params,
+    public static<Q> HttpResponse<Q> syncBufferGet(String requestUrl, NetConfig netConf, Map<String, String> params,
                                                      Map<String, String> headers) throws IOException, Exception {
         if (params != null && !params.isEmpty()) {
             String s = urlEncode(params);
@@ -198,7 +198,7 @@ public class UrlConnectionHelper {
 
         urlConnection.connect();
         int code = urlConnection.getResponseCode();
-        HttpResponse<Buffer> httpResponse = new HttpResponse<>();
+        HttpResponse<Q> httpResponse = new HttpResponse<>();
         httpResponse.setResponseCode(code);
         if (code == 200) {
             InputStream is;
@@ -206,7 +206,7 @@ public class UrlConnectionHelper {
             try {
                 is = urlConnection.getInputStream();
                 buf.readFrom(is);
-                httpResponse.setBodys(buf);
+                httpResponse.setBuffer(buf);
             } catch (IOException e) {
                 throw e;
             } finally {
@@ -347,7 +347,7 @@ public class UrlConnectionHelper {
         return httpResponse;
     }
 
-    public static HttpResponse<Buffer> syncBufferPost(String requestUrl, NetConfig netConf, Map<String, String> params,
+    public static<Q> HttpResponse<Q> syncBufferPost(String requestUrl, NetConfig netConf, Map<String, String> params,
                                                       Map<String, String> headers) throws IOException, Exception {
         URL url = new URL(requestUrl);
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
@@ -368,7 +368,7 @@ public class UrlConnectionHelper {
 
         DataOutputStream out = null;
         InputStream is;
-        HttpResponse<Buffer> httpResponse = new HttpResponse<>();
+        HttpResponse<Q> httpResponse = new HttpResponse<>();
         try {
             out = new DataOutputStream(urlConnection.getOutputStream());
             String content = urlEncode(params);
@@ -379,7 +379,7 @@ public class UrlConnectionHelper {
             httpResponse.setResponseCode(code);
             if (code == 200) {
                 is = urlConnection.getInputStream();
-                httpResponse.setBodys(new Buffer().readFrom(is));
+                httpResponse.setBuffer(new Buffer().readFrom(is));
                 urlConnection.disconnect();
             } else {
                 Exception e = new Exception("error! stateCode " + code);

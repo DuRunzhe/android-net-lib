@@ -85,7 +85,7 @@ public class HttpRequest implements Runnable {
             }
             //设置请求结束时间
             mRequestAttributes.setEndTime(SystemClock.currentThreadTimeMillis());
-            if (response != null && response.getBodys() != null) {
+            if (response != null && response.getBuffer() != null) {
                 final HttpResponse finalResponse = response;
                 responseHander.post(new Runnable() {
                     @Override
@@ -94,6 +94,9 @@ public class HttpRequest implements Runnable {
                         callBack.onResponse(finalResponse);
                     }
                 });
+            } else {
+                callBack.onException(new Exception("Response id null exception"));
+                return;
             }
         } catch (final IOException e) {
             e.printStackTrace();

@@ -1,16 +1,15 @@
 package com.drz.lib.androidnetlib.entity.respose;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.io.StringWriter;
-import java.nio.Buffer;
+
+import okio.Buffer;
 
 /**
  * Created by drz on 2017/3/3.
@@ -22,10 +21,19 @@ public class HttpResponse<Q> implements Serializable {
     private Throwable error;
     private Q bodys;
     private long contentLength;
+    private Buffer buffer;
+
+    public Buffer getBuffer() {
+        return buffer;
+    }
+
+    public void setBuffer(Buffer buffer) {
+        this.buffer = buffer;
+    }
 
     public String string() {
-        if (bodys != null && bodys instanceof okio.Buffer) {
-            return ((okio.Buffer) bodys).toString();
+        if (buffer != null) {
+            return buffer.readUtf8();
         }
         return null;
     }
@@ -69,9 +77,7 @@ public class HttpResponse<Q> implements Serializable {
 
     public byte[] getBody() {
         if (body == null) {
-            if (bodys != null && bodys instanceof okio.Buffer) {
-                return ((okio.Buffer) bodys).readByteArray();
-            }
+            body = bytes();
         }
         return body;
     }
@@ -97,15 +103,15 @@ public class HttpResponse<Q> implements Serializable {
     }
 
     public byte[] bytes() {
-        if (bodys != null && bodys instanceof okio.Buffer) {
-            return ((okio.Buffer) bodys).readByteArray();
+        if (buffer != null) {
+            return buffer.readByteArray();
         }
         return null;
     }
 
     public InputStream inputStream() {
-        if (bodys != null && bodys instanceof okio.Buffer) {
-            return ((okio.Buffer) bodys).inputStream();
+        if (buffer != null) {
+            return buffer.inputStream();
         }
         return null;
     }
