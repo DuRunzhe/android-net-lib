@@ -22,6 +22,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import okio.Buffer;
+
 /**
  * Created by drz on 2016/2/24.
  */
@@ -170,6 +172,54 @@ public class UrlConnectionHelper {
             throw exception;
         }
         return httpResponse;
+    }
+
+    public static HttpResponse<Buffer> syncBufferGet(String requestUrl, NetConfig netConf, Map<String, String> params,
+                                                     Map<String, String> headers) throws IOException, Exception {
+        if (params != null && !params.isEmpty()) {
+            String s = urlEncode(params);
+            requestUrl += "?" + s;
+        }
+        URL url = new URL(requestUrl);
+        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        urlConnection.setDoInput(true);
+        urlConnection.setDoOutput(false);//GET方式时需要保持false
+//        urlConnection.setUseCaches(false);
+//        urlConnection.setInstanceFollowRedirects(true);
+        urlConnection.setRequestMethod("GET");
+        if (netConf == null) {
+            netConf = new NetConfig();
+        }
+        urlConnection.setConnectTimeout(netConf.getConnectionOutTime());
+        urlConnection.setReadTimeout(netConf.getReadOutTime());
+        if (headers != null && !headers.isEmpty()) {
+            initHeader(headers, urlConnection);
+        }
+
+        urlConnection.connect();
+        int code = urlConnection.getResponseCode();
+        HttpResponse<Buffer> httpResponse = new HttpResponse<>();
+        httpResponse.setResponseCode(code);
+        if (code == 200) {
+            InputStream is;
+            Buffer buf = new Buffer();
+            try {
+                is = urlConnection.getInputStream();
+                buf.readFrom(is);
+                httpResponse.setBodys(buf);
+            } catch (IOException e) {
+                httpResponse.setError(e);
+            } finally {
+                urlConnection.disconnect();
+            }
+        } else {
+            httpResponse.setResponseCode(500);
+            Exception exception = new Exception("error! stateCode " + code);
+            httpResponse.setError(exception);
+            throw exception;
+        }
+        return httpResponse;
+
     }
 
     /**

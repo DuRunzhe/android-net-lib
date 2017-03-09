@@ -12,6 +12,8 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import okio.Buffer;
+
 /**
  * Created by Administrator on 2017/3/5 0005.
  */
@@ -20,8 +22,18 @@ public abstract class BitmapRequestCallBack extends BaseRequestCallBack {
 
     @Override
     public void onResponse(HttpResponse httpResponse) {
-        byte[] body = httpResponse.getBody();
-        Bitmap bitmap = BitmapFactory.decodeByteArray(body, 0, body.length);
+        Buffer buffer = new Buffer();
+        Buffer buf = null;
+        try {
+            buf = buffer.readFrom(new ByteArrayInputStream(httpResponse.getBody()));
+        } catch (IOException e) {
+            onException(e);
+            return;
+        }
+        InputStream is = buf.inputStream();
+        Bitmap bitmap = BitmapFactory.decodeStream(is);
+//        byte[] body = httpResponse.getBody();
+//        Bitmap bitmap = BitmapFactory.decodeByteArray(body, 0, body.length);
         onBitMapResponse(bitmap);
 
 //        ByteArrayInputStream bais = null;
