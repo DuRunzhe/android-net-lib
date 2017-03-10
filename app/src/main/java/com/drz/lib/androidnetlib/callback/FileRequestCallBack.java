@@ -8,6 +8,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import okio.Buffer;
+
 /**
  * 请求文件回调
  * Created by Administrator on 2017/3/5 0005.
@@ -23,7 +25,7 @@ public abstract class FileRequestCallBack extends BaseRequestCallBack<File> {
     }
 
     @Override
-    public void onResponse(HttpResponse<File> responseEntity) {
+    public void onResponse(HttpResponse  responseEntity) {
         InputStream is = null;
         FileOutputStream fos = null;
         try {
@@ -36,15 +38,14 @@ public abstract class FileRequestCallBack extends BaseRequestCallBack<File> {
             File file = new File(dir, mFileName);
             fos = new FileOutputStream(file);
             byte[] buf = new byte[2048];
-            int len = 0;
+            int len;
             while ((len = is.read(buf)) != -1) {
                 fos.write(buf, 0, len);
                 sum += len;
             }
             fos.flush();
             responseEntity.setContentLength(sum);
-            responseEntity.setBodys(file);
-            onFileResponse(responseEntity);
+            onFileResponse(file);
         } catch (IOException e) {
             onException(e);
         } finally {
@@ -62,5 +63,5 @@ public abstract class FileRequestCallBack extends BaseRequestCallBack<File> {
 
     }
 
-    protected abstract void onFileResponse(HttpResponse<File> httpResponse);
+    protected abstract void onFileResponse(File file);
 }

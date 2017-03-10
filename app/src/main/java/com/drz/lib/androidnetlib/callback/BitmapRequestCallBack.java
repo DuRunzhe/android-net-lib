@@ -21,7 +21,7 @@ import okio.Buffer;
 public abstract class BitmapRequestCallBack extends BaseRequestCallBack<Bitmap> {
 
     @Override
-    public void onResponse(HttpResponse<Bitmap> httpResponse) {
+    public void onResponse(HttpResponse httpResponse) {
         Bitmap bitmap = BitmapFactory.decodeStream(httpResponse.inputStream());
         if (bitmap == null) {
             onException(new Exception("Bitmap is null"));

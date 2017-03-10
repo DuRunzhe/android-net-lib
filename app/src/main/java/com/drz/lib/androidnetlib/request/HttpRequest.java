@@ -74,7 +74,7 @@ public class HttpRequest implements Runnable {
     public void run() {
         Log.e("debug", "Thread name:" + Thread.currentThread().getName() + " id:" + Thread.currentThread().getId());
         //执行Http请求
-        HttpResponse<Buffer> response = null;
+        HttpResponse response = null;
         try {
             if (method == RequestMethod.GET) {
                 response = UrlConnectionHelper.syncBufferGet(requestUrl, netConf, requestParams, headers);
@@ -85,7 +85,7 @@ public class HttpRequest implements Runnable {
             }
             //设置请求结束时间
             mRequestAttributes.setEndTime(SystemClock.currentThreadTimeMillis());
-            if (response != null && response.getBuffer() != null) {
+            if (response != null && response.buffer() != null) {
                 final HttpResponse finalResponse = response;
                 responseHander.post(new Runnable() {
                     @Override

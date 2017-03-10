@@ -5,7 +5,6 @@ import com.drz.lib.androidnetlib.entity.respose.HttpResponse;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -14,7 +13,6 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -137,33 +135,20 @@ public class UrlConnectionHelper {
         httpResponse.setResponseCode(code);
         if (code == 200) {
             InputStream is = null;
-            ByteArrayOutputStream baos = null;
-            BufferedInputStream bis = null;
             try {
                 is = urlConnection.getInputStream();
-                bis = new BufferedInputStream(is);
-                baos = new ByteArrayOutputStream();
-                byte[] buffer = new byte[1024];
-                while ((bis.read(buffer)) != -1) {
-                    baos.write(buffer);
-                }
-                baos.flush();
-                byte[] body = baos.toByteArray();
-                httpResponse = new HttpResponse();
-                httpResponse.setBody(body);
+                httpResponse.setBuffer(new Buffer().readFrom(is));
             } catch (IOException e) {
                 httpResponse.setError(e);
             } finally {
-                if (null != baos) {
-                    baos.close();
-                }
-//                if (null != is) {
-//                    is.close();
-//                }
-                if (null != bis) {
-                    bis.close();
-                }
                 urlConnection.disconnect();
+                if (is != null) {
+                    try {
+                        is.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         } else {
             httpResponse.setResponseCode(500);
@@ -174,8 +159,8 @@ public class UrlConnectionHelper {
         return httpResponse;
     }
 
-    public static<Q> HttpResponse<Q> syncBufferGet(String requestUrl, NetConfig netConf, Map<String, String> params,
-                                                     Map<String, String> headers) throws IOException, Exception {
+    public static HttpResponse syncBufferGet(String requestUrl, NetConfig netConf, Map<String, String> params,
+                                             Map<String, String> headers) throws IOException, Exception {
         if (params != null && !params.isEmpty()) {
             String s = urlEncode(params);
             requestUrl += "?" + s;
@@ -198,10 +183,10 @@ public class UrlConnectionHelper {
 
         urlConnection.connect();
         int code = urlConnection.getResponseCode();
-        HttpResponse<Q> httpResponse = new HttpResponse<>();
+        HttpResponse httpResponse = new HttpResponse();
         httpResponse.setResponseCode(code);
         if (code == 200) {
-            InputStream is;
+            InputStream is = null;
             Buffer buf = new Buffer();
             try {
                 is = urlConnection.getInputStream();
@@ -211,6 +196,12 @@ public class UrlConnectionHelper {
                 throw e;
             } finally {
                 urlConnection.disconnect();
+                if (is != null) {
+                    try {
+                        is.close();
+                    } catch (IOException e) {
+                    }
+                }
             }
         } else {
             httpResponse.setResponseCode(500);
@@ -297,78 +288,7 @@ public class UrlConnectionHelper {
 
         DataOutputStream out = null;
         InputStream is = null;
-        ByteArrayOutputStream baos = null;
-        BufferedInputStream bis = null;
         HttpResponse httpResponse = new HttpResponse();
-        try {
-            out = new DataOutputStream(urlConnection.getOutputStream());
-            String content = urlEncode(params);
-            out.writeBytes(content);
-            out.flush();
-
-            int code = urlConnection.getResponseCode();
-            httpResponse.setResponseCode(code);
-            if (code == 200) {
-                is = urlConnection.getInputStream();
-                bis = new BufferedInputStream(is);
-                baos = new ByteArrayOutputStream();
-                byte[] buffer = new byte[1024];
-                while ((bis.read(buffer)) != -1) {
-                    baos.write(buffer);
-                }
-                baos.flush();
-                byte[] body = baos.toByteArray();
-                httpResponse = new HttpResponse();
-                httpResponse.setBody(body);
-                urlConnection.disconnect();
-            } else {
-                Exception e = new Exception("error! stateCode " + code);
-                httpResponse.setResponseCode(500);
-                httpResponse.setError(e);
-                throw e;
-            }
-        } catch (IOException e) {
-            httpResponse.setError(e);
-            throw e;
-        } finally {
-            if (out != null) {
-                out.close();
-            }
-            if (baos != null) {
-                baos.close();
-            }
-//            if (is != null) {
-//                is.close();
-//            }
-            if (bis != null) {
-                bis.close();
-            }
-        }
-        return httpResponse;
-    }
-
-    public static<Q> HttpResponse<Q> syncBufferPost(String requestUrl, NetConfig netConf, Map<String, String> params,
-                                                      Map<String, String> headers) throws IOException, Exception {
-        URL url = new URL(requestUrl);
-        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-        urlConnection.setDoInput(true);
-        urlConnection.setDoOutput(true);
-        urlConnection.setRequestMethod("POST");
-        urlConnection.setUseCaches(false);
-        urlConnection.setInstanceFollowRedirects(false);
-        if (netConf == null) {
-            netConf = new NetConfig();
-        }
-        urlConnection.setConnectTimeout(netConf.getConnectionOutTime());
-        urlConnection.setReadTimeout(netConf.getReadOutTime());
-        if (headers != null && !headers.isEmpty()) {
-            initHeader(headers, urlConnection);
-        }
-        urlConnection.connect();
-
-        DataOutputStream out = null;
-        InputStream is;
-        HttpResponse<Q> httpResponse = new HttpResponse<>();
         try {
             out = new DataOutputStream(urlConnection.getOutputStream());
             String content = urlEncode(params);
@@ -391,8 +311,73 @@ public class UrlConnectionHelper {
             httpResponse.setError(e);
             throw e;
         } finally {
-            if (out != null) {
-                out.close();
+            try {
+                if (out != null) {
+                    out.close();
+                }
+                if (is != null) {
+                    is.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return httpResponse;
+    }
+
+    public static HttpResponse syncBufferPost(String requestUrl, NetConfig netConf, Map<String, String> params,
+                                              Map<String, String> headers) throws IOException, Exception {
+        URL url = new URL(requestUrl);
+        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        urlConnection.setDoInput(true);
+        urlConnection.setDoOutput(true);
+        urlConnection.setRequestMethod("POST");
+        urlConnection.setUseCaches(false);
+        urlConnection.setInstanceFollowRedirects(false);
+        if (netConf == null) {
+            netConf = new NetConfig();
+        }
+        urlConnection.setConnectTimeout(netConf.getConnectionOutTime());
+        urlConnection.setReadTimeout(netConf.getReadOutTime());
+        if (headers != null && !headers.isEmpty()) {
+            initHeader(headers, urlConnection);
+        }
+        urlConnection.connect();
+
+        DataOutputStream out = null;
+        InputStream is = null;
+        HttpResponse httpResponse = new HttpResponse();
+        try {
+            out = new DataOutputStream(urlConnection.getOutputStream());
+            String content = urlEncode(params);
+            out.writeBytes(content);
+            out.flush();
+
+            int code = urlConnection.getResponseCode();
+            httpResponse.setResponseCode(code);
+            if (code == 200) {
+                is = urlConnection.getInputStream();
+                httpResponse.setBuffer(new Buffer().readFrom(is));
+                urlConnection.disconnect();
+            } else {
+                Exception e = new Exception("error! stateCode " + code);
+                httpResponse.setResponseCode(500);
+                httpResponse.setError(e);
+                throw e;
+            }
+        } catch (IOException e) {
+            httpResponse.setError(e);
+            throw e;
+        } finally {
+            try {
+                if (out != null) {
+                    out.close();
+                }
+                if(is!=null){
+                    is.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
         return httpResponse;

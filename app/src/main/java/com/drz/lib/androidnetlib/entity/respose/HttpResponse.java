@@ -1,5 +1,7 @@
 package com.drz.lib.androidnetlib.entity.respose;
 
+import android.support.annotation.Nullable;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
@@ -15,15 +17,13 @@ import okio.Buffer;
  * Created by drz on 2017/3/3.
  */
 
-public class HttpResponse<Q> implements Serializable {
-    private byte[] body;
+public class HttpResponse implements Serializable {
     private int responseCode;
     private Throwable error;
-    private Q bodys;
     private long contentLength;
     private Buffer buffer;
 
-    public Buffer getBuffer() {
+    public Buffer buffer() {
         return buffer;
     }
 
@@ -31,6 +31,7 @@ public class HttpResponse<Q> implements Serializable {
         this.buffer = buffer;
     }
 
+    @Nullable
     public String string() {
         if (buffer != null) {
             return buffer.readUtf8();
@@ -75,25 +76,6 @@ public class HttpResponse<Q> implements Serializable {
     public HttpResponse() {
     }
 
-    public byte[] getBody() {
-        if (body == null) {
-            body = bytes();
-        }
-        return body;
-    }
-
-    public void setBody(byte[] body) {
-        this.body = body;
-    }
-
-    public Q getBodys() {
-        return bodys;
-    }
-
-    public void setBodys(Q bodys) {
-        this.bodys = bodys;
-    }
-
     public long getContentLength() {
         return contentLength;
     }
@@ -102,6 +84,7 @@ public class HttpResponse<Q> implements Serializable {
         this.contentLength = contentLength;
     }
 
+    @Nullable
     public byte[] bytes() {
         if (buffer != null) {
             return buffer.readByteArray();
@@ -109,10 +92,12 @@ public class HttpResponse<Q> implements Serializable {
         return null;
     }
 
+    @Nullable
     public InputStream inputStream() {
         if (buffer != null) {
             return buffer.inputStream();
         }
         return null;
     }
+
 }

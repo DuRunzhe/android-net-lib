@@ -97,9 +97,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 final int finalCount = count++;
                 clickView.setText("连接" + finalCount);
-//                asyncRequest(finalCount);
+                asyncRequest(finalCount);
 //                syncRequest(finalCount);
-                fileRequest(finalCount);
+//                fileRequest(finalCount);
 //                bitmapRequest(finalCount);
 //                okHttpRequest(finalCount);
 //                urlConnectionGet(finalCount);
@@ -169,11 +169,10 @@ public class MainActivity extends AppCompatActivity {
                 .execute(
                         new StringRequestCallBack() {
                             @Override
-                            public void onStringResponse(HttpResponse<String> response) {
-                                Log.e("debug", "test:" + response.getBodys());
-                                String string = response.string();
-                                mSlv.log("count:" + (finalCount) + " " + string);
-                                Toast.makeText(mContext, "test:" + string, Toast.LENGTH_SHORT).show();
+                            public void onStringResponse(String response) {
+                                Log.e("debug", "response:" + response);
+                                mSlv.log("count:" + (finalCount) + " " + response);
+                                Toast.makeText(mContext, "response:" + response, Toast.LENGTH_SHORT).show();
                             }
 
                             @Override
@@ -193,8 +192,7 @@ public class MainActivity extends AppCompatActivity {
                 .url(getUrl())
                 .execute(new FileRequestCallBack(Environment.getExternalStorageDirectory().getPath(), "test2.jpeg") {
                     @Override
-                    protected void onFileResponse(HttpResponse<File> httpResponse) {
-                        File file = httpResponse.getBodys();
+                    protected void onFileResponse(File file) {
                         Log.d("debug", "File Name:" + file.getName() + ", length:" + String.valueOf(file.length()));
                         mSlv.log("File Name:" + file.getName() + ", length:" + String.valueOf(file.length()));
                         mIv.setImageBitmap(BitmapFactory.decodeFile(file.getPath()));
@@ -268,10 +266,10 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 try {
                     final String requestUrl = getUrl();
-                    HttpResponse<Buffer> bufferHttpResponse = UrlConnectionHelper.syncBufferGet(
+                    HttpResponse bufferHttpResponse = UrlConnectionHelper.syncBufferGet(
                             requestUrl, null, null, null
                     );
-                    InputStream is = bufferHttpResponse.getBodys().inputStream();
+                    InputStream is = bufferHttpResponse.inputStream();
                     final Bitmap bitmap = BitmapFactory.decodeStream(is);
                     runOnUiThread(new Runnable() {
                         @Override

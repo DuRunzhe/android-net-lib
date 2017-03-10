@@ -13,13 +13,13 @@ import okio.Buffer;
 public abstract class StringRequestCallBack extends BaseRequestCallBack<String> {
 
     @Override
-    public void onResponse(HttpResponse<String> httpResponse) {
+    public void onResponse(HttpResponse httpResponse) {
         try {
-            onStringResponse(httpResponse);
+            onStringResponse(httpResponse.string());
         } catch (Exception e) {
             onException(e);
         }
     }
 
-    public abstract void onStringResponse(HttpResponse<String> response);
+    public abstract void onStringResponse(String response);
 }

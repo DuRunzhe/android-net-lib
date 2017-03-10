@@ -22,5 +22,5 @@ public interface IRequestCallBack<Q> {
      */
     void setRequestAttributes(RequestAttributes requestAttributes);
 
-    void onResponse(HttpResponse<Q> httpResponse);
+    void onResponse(HttpResponse httpResponse);
 }
