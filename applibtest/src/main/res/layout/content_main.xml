@@ -13,7 +13,7 @@
     tools:context="com.drz.lib.androidnetlib.MainActivity"
     tools:showIn="@layout/activity_main">
 
-    <!--<com.drz.lib.androidnetlib.widget.LogView-->
+    <!--<com.pull2me.android.netlib.widget.LogView-->
     <!--android:id="@+id/lgv"-->
     <!--android:background="#000"-->
     <!--android:textColor="#ffff00"-->
@@ -27,7 +27,7 @@
         android:layout_gravity="center_horizontal"
         android:text="连接" />
 
-    <com.drz.lib.androidnetlib.widget.LittleLogView
+    <com.pull2me.android.netlib.widget.LittleLogView
         android:id="@+id/ltv"
         android:layout_width="match_parent"
         android:layout_height="20dp"
@@ -36,7 +36,7 @@
         android:background="#000"
         android:textColor="#ffff00" />
 
-    <com.drz.lib.androidnetlib.widget.ScrollLogView
+    <com.pull2me.android.netlib.widget.ScrollLogView
         android:id="@+id/slv"
         android:layout_width="match_parent"
         android:layout_height="200dp"
