@@ -1,9 +1,12 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.github.dcendents.android-maven'
+
+group='com.github.DuRunzhe'
 
 android {
     compileSdkVersion 28
     defaultConfig {
-        minSdkVersion 15
+        minSdkVersion 10
         targetSdkVersion 28
         versionCode 1
         versionName "1.0.0"
