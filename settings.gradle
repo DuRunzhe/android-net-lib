@@ -1,1 +1,1 @@
-include ':android-net-lib', ':applibtest'
+include ':android-net-lib'

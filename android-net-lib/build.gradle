@@ -3,15 +3,15 @@ apply plugin: 'com.github.dcendents.android-maven'
 
 group = 'com.github.DuRunzhe'
 // 版本号，下次更新是只需要更改版本号即可
-version = "1.0.0"
+version = "1.0.1-beta"
 
 android {
     compileSdkVersion 28
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 28
-        versionCode 1
-        versionName "1.0.0"
+        versionCode 2
+        versionName version
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
