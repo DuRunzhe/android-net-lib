@@ -1,7 +1,5 @@
 package com.pull2me.android.netlib.entity.respose;
 
-import android.support.annotation.Nullable;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
@@ -35,7 +33,6 @@ public class HttpResponse implements Serializable {
         this.buffer = buffer;
     }
 
-    @Nullable
     public String string() {
         if (buffer != null) {
             return buffer.readUtf8();
@@ -88,7 +85,6 @@ public class HttpResponse implements Serializable {
         this.contentLength = contentLength;
     }
 
-    @Nullable
     public byte[] bytes() {
         if (buffer != null) {
             return buffer.readByteArray();
@@ -96,7 +92,6 @@ public class HttpResponse implements Serializable {
         return null;
     }
 
-    @Nullable
     public InputStream inputStream() {
         if (buffer != null) {
             return buffer.inputStream();
