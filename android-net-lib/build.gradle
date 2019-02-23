@@ -3,7 +3,7 @@ apply plugin: 'com.github.dcendents.android-maven'
 
 group = 'com.github.DuRunzhe'
 // 版本号，下次更新是只需要更改版本号即可
-version = "1.0.2-alpha"
+version = "1.0.2-release"
 
 android {
     compileSdkVersion 28
